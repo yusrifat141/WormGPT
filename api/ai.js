@@ -5,18 +5,15 @@ export default async function handler(req, res) {
 
   const { systemPrompt, userMessage } = req.body || {};
 
-  if (!userMessage) {
+  if (!userMessage)
     return res.status(400).json({ error: "User message required" });
-  }
 
   try {
-    // Gabung prompt
     const mergedInput = `
 SYSTEM: ${systemPrompt || "You are a helpful AI."}
 USER: ${userMessage}
     `;
 
-    // Request ke OpenAI Responses API
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -24,7 +21,7 @@ USER: ${userMessage}
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",   // lu bisa ganti nanti
+        model: "gpt-4.1-mini",
         input: mergedInput
       })
     });
@@ -32,7 +29,6 @@ USER: ${userMessage}
     const data = await response.json();
     console.log("DEBUG OPENAI:", data);
 
-    // Kalau API error
     if (!response.ok) {
       return res.status(500).json({
         error: "API Error",
@@ -40,11 +36,23 @@ USER: ${userMessage}
       });
     }
 
-    // ==== FIX PALING PENTING ====
-    // Format Responses API -> data.output[0].text
-    const output =
-      data?.output?.[0]?.text ??
-      "Tidak ada respon";
+    // ==============================
+    // FIX PROBLEM PALING PENTING !!!
+    // ==============================
+    let output = null;
+
+    // Format standar Responses API
+    if (data.output_text?.[0]) {
+      output = data.output_text[0];
+    }
+
+    // Format baru type="message"
+    else if (data.output?.[0]?.content?.[0]?.text) {
+      output = data.output[0].content[0].text;
+    }
+
+    // Backup terakhir
+    if (!output) output = "Tidak ada respon";
 
     return res.status(200).json({ answer: output });
 
