@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const { systemPrompt, userMessage } = req.body;
+  const { systemPrompt, userMessage } = req.body || {};
   if (!userMessage)
     return res.status(400).json({ error: "User message required" });
 
@@ -11,8 +11,8 @@ export default async function handler(req, res) {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-5-nano",
-        input: [
+        model: "gpt-4.1-mini",
+        messages: [
           { role: "system", content: systemPrompt || "You are helpful AI." },
           { role: "user", content: userMessage }
         ]
@@ -20,16 +20,16 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    console.log("OpenAI response:", data);
+    console.log("DEBUG:", data);
 
     if (!response.ok)
-      return res.status(500).json({ error: "OpenAI API error", details: data });
+      return res.status(500).json({ error: "API error", details: data });
 
-    const output = data.output_text?.[0] || "[No response]";
+    const output = data.output_text?.[0] || "Tidak ada respon";
 
-    res.status(200).json({ answer: output });
+    return res.status(200).json({ answer: output });
   } catch (err) {
-    console.error("Server error:", err);
-    res.status(500).json({ error: "Server error", details: err.message });
+    console.error(err);
+    return res.status(500).json({ error: "Server error", details: err.message });
   }
 }
