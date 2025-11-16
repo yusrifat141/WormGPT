@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 export default async function handler(req, res) {
   const { systemPrompt, userMessage } = req.body;
   if (!userMessage) return res.status(400).json({ error: "User message required" });
