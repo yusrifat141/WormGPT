@@ -4,6 +4,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "User message required" });
 
   try {
+    const mergedInput = `
+SYSTEM: ${systemPrompt || "You are a helpful AI."}
+USER: ${userMessage}
+    `;
+
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -12,10 +17,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        input: [
-          { role: "system", content: systemPrompt || "You are helpful AI." },
-          { role: "user", content: userMessage }
-        ]
+        input: mergedInput
       })
     });
 
@@ -25,15 +27,10 @@ export default async function handler(req, res) {
     if (!response.ok)
       return res.status(500).json({ error: "API Error", details: data });
 
-    let output = data.output_text?.[0];
-
-    if (!output && data.output?.[0]?.content?.[0]?.text) {
-      output = data.output[0].content[0].text;
-    }
-
-    if (!output) output = "Tidak ada respon";
+    const output = data.output_text?.[0] || "Tidak ada respon";
 
     return res.status(200).json({ answer: output });
+
   } catch (err) {
     console.error("Server Error:", err);
     return res.status(500).json({ error: "Server error", details: err.message });
