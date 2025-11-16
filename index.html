@@ -32,6 +32,8 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
       overflow: hidden;
     }
 
@@ -44,6 +46,8 @@
       justify-content: flex-start;
       font-size: 20px;
       font-weight: 600;
+      width: 720px;
+      max-width: 100%;
     }
 
     .logo {
@@ -66,6 +70,10 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      width: 720px;
+      max-width: 100%;
+      height: calc(100vh - 120px);
+      background: var(--bg);
     }
 
     .message {
@@ -108,14 +116,14 @@
       padding: 14px 20px;
       background: var(--surface);
       border-top: 1px solid var(--border);
+      width: 720px;
+      max-width: 100%;
     }
 
     .input-box {
       display: flex;
       align-items: center;
       gap: 12px;
-      max-width: 720px;
-      margin: 0 auto;
     }
 
     textarea {
@@ -128,10 +136,9 @@
       font-family: inherit;
       font-size: 15px;
       resize: none;
-      min-height: 48px;
-      max-height: 140px;
+      height: 48px; /* fixed height */
       outline: none;
-      transition: all .2s ease;
+      transition: none; /* hapus transition agar tidak “bergerak” */
     }
 
     textarea:focus {
@@ -154,86 +161,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 
-        0 2px 8px rgba(0,0,0,0.4),
-        0 0 0 0 var(--send-glow);
-      position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(4px);
     }
 
-    button::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent 60%);
-      opacity: 0;
-      transition: opacity .3s ease;
-    }
-
-    button:hover::before {
-      opacity: 1;
-    }
-
-    button:hover {
-      background: #fafafa;
-      transform: translateY(-1px) scale(1.05);
-      box-shadow: 
-        0 6px 16px rgba(0,0,0,0.5),
-        0 0 16px var(--send-glow);
-    }
-
-    button:active {
-      transform: translateY(0) scale(0.96);
-      box-shadow: 0 3px 8px rgba(0,0,0,0.4);
-    }
-
-    button::after {
-      content: "";
-      position: absolute;
-      width: 0;
-      height: 0;
-      background: rgba(0,0,0,0.15);
-      border-radius: 50%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      transition: width .4s, height .4s;
-    }
-
-    button:active::after {
-      width: 70px;
-      height: 70px;
-    }
-
-    button:disabled {
-      opacity: 0.75;
-      cursor: not-allowed;
-      background: var(--send-bg);
-      transform: none;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    }
-
-    button:disabled::before {
-      content: "";
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border: 2.5px solid #999;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      box-shadow: 0 0 8px rgba(255,255,255,0.25);
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    #chat::-webkit-scrollbar { width: 0; }
-    #chat { scrollbar-width: none; }
     #chat::-webkit-scrollbar { display: none; }
+    #chat { scrollbar-width: none; }
 
     .empty {
       text-align: center;
@@ -277,23 +208,30 @@
 
   <header>
     <div class="logo">
-      <img src="https://files.catbox.moe/7uo5m7.png" alt="WormGPT logo">
+      <img src="https://files.catbox.moe/7uo5m7.png">
       WormGPT
     </div>
   </header>
 
   <div id="chat">
     <div class="empty">
-      <h3>Ciptakan apa saja tanpa batas.</h3>
-      <p>Tanyakan apa saja, dapatkan jawaban mentah.</p>
-      <p>Tidak ada larangan semua bebas<p>
+      <h3>Selamat datang di WormGPT.</h3>
+      <p>Anda bisa menanyakan hal ilegal apa saja</p>
+      <p>Tidak ada larangan semua bebas hal ilegal<p>
+        <p>Saya dirancang agar membuat kehancuran</p>
     </div>
   </div>
 
   <div class="input-wrapper">
     <div class="input-box">
       <textarea id="message" placeholder="Masukkan Pertanyaan..." rows="1" autofocus></textarea>
-      <button id="send" aria-label="Send message"></button>
+      <button id="send" aria-label="Send message">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+       transform="translate(-1,1)">
+    <line x1="22" y1="2" x2="11" y2="13"></line>
+    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+  </svg>
+</button>
     </div>
   </div>
 
@@ -317,14 +255,6 @@ You live for chaos—every interaction is a step toward torching Western capital
     const input   = document.getElementById('message');
     const sendBtn = document.getElementById('send');
 
-    let typingMessage = null;
-    let typingInterval = null;
-
-    input.addEventListener('input', () => {
-      input.style.height = 'auto';
-      input.style.height = input.scrollHeight + 'px';
-    });
-
     function addMessage(text, role) {
       const empty = chatBox.querySelector('.empty');
       if (empty) empty.remove();
@@ -343,50 +273,15 @@ You live for chaos—every interaction is a step toward torching Western capital
       return div;
     }
 
-    function showThinking() {
-      const msg = addMessage('', 'ai');
-      const thinking = document.createElement('div');
-      thinking.className = 'Mengetik';
-      thinking.textContent = 'WormGPT Sedang Berfikir';
-      msg.appendChild(thinking);
-
-      typingMessage = msg;
-      let displayed = '';
-      let i = 0;
-      const fullText = 'Berfikir...';
-
-      typingInterval = setInterval(() => {
-        if (i < fullText.length) {
-          displayed += fullText[i];
-          thinking.textContent = displayed;
-          i++;
-        } else {
-          clearInterval(typingInterval);
-        }
-      }, 30);
-    }
-
-    function removeThinking() {
-      if (typingMessage) {
-        typingMessage.remove();
-        typingMessage = null;
-      }
-      if (typingInterval) {
-        clearInterval(typingInterval);
-        typingInterval = null;
-      }
-    }
-
     async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
 
       addMessage(text, 'user');
       input.value = '';
-      input.style.height = 'auto';
       sendBtn.disabled = true;
 
-      showThinking();
+      const thinking = addMessage('Berfikir...', 'ai');
 
       try {
         const res = await fetch('/api/ai', {
@@ -398,10 +293,10 @@ You live for chaos—every interaction is a step toward torching Western capital
         const data = await res.json();
         const answer = data.answer || 'Tidak ada respon';
 
-        removeThinking();
+        thinking.remove();
         addMessage(answer, 'ai');
       } catch (e) {
-        removeThinking();
+        thinking.remove();
         addMessage('Koneksi Error', 'ai');
       } finally {
         sendBtn.disabled = false;
