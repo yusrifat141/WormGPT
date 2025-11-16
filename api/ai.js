@@ -13,29 +13,29 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: "gpt-4.1-mini",
         input: [
-          {
-            role: "system",
-            content: systemPrompt || "You are helpful AI."
-          },
-          {
-            role: "user",
-            content: userMessage
-          }
+          { role: "system", content: systemPrompt || "You are helpful AI." },
+          { role: "user", content: userMessage }
         ]
       })
     });
 
     const data = await response.json();
-    console.log("DEBUG:", data);
+    console.log("DEBUG OPENAI:", data);
 
     if (!response.ok)
-      return res.status(500).json({ error: "API error", details: data });
+      return res.status(500).json({ error: "API Error", details: data });
 
-    const output = data.output_text?.[0] || "Tidak ada respon";
+    let output = data.output_text?.[0];
+
+    if (!output && data.output?.[0]?.content?.[0]?.text) {
+      output = data.output[0].content[0].text;
+    }
+
+    if (!output) output = "Tidak ada respon";
 
     return res.status(200).json({ answer: output });
   } catch (err) {
-    console.error(err);
+    console.error("Server Error:", err);
     return res.status(500).json({ error: "Server error", details: err.message });
   }
 }
