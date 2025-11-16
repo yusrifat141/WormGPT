@@ -12,9 +12,15 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        messages: [
-          { role: "system", content: systemPrompt || "You are helpful AI." },
-          { role: "user", content: userMessage }
+        input: [
+          {
+            role: "system",
+            content: systemPrompt || "You are helpful AI."
+          },
+          {
+            role: "user",
+            content: userMessage
+          }
         ]
       })
     });
