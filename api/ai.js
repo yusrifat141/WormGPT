@@ -1,40 +1,34 @@
-import OpenAI from "openai";
-
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST allowed" });
-  }
-
-  const { userMessage, systemPrompt } = req.body;
-  if (!userMessage) {
-    return res.status(400).json({ error: "User message required" });
-  }
+  const { systemPrompt, userMessage } = req.body;
+  if (!userMessage) return res.status(400).json({ error: "User message required" });
 
   try {
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY, // sk-proj kamu
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",  // <==== WAJIB DIGANTI
+        messages: [
+          { role: "system", content: systemPrompt || "You are helpful AI." },
+          { role: "user", content: userMessage }
+        ]
+      })
     });
 
-    const response = await client.responses.create({
-      model: "gpt-5-nano", // OpenAI asli support model ini
-      input: [
-        {
-          role: "system",
-          content: systemPrompt || "You are an AI assistant."
-        },
-        {
-          role: "user",
-          content: userMessage
-        }
-      ]
-    });
+    const data = await response.json();
+    console.log("OpenAI response:", data);
+
+    if (!response.ok) return res.status(500).json({ error: "OpenAI API error", details: data });
 
     res.status(200).json({
-      reply: response.output_text,
+      answer: data.choices?.[0]?.message?.content || "[No response]"
     });
 
   } catch (err) {
-    console.error("API ERROR:", err);
-    res.status(500).json({ error: err.message });
+    console.error("Server error:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
   }
 }
