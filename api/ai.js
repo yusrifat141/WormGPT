@@ -27,7 +27,10 @@ USER: ${userMessage}
     if (!response.ok)
       return res.status(500).json({ error: "API Error", details: data });
 
-    const output = data.output_text?.[0] || "Tidak ada respon";
+    // ====== FIX PALING PENTING ======
+    const output =
+      data.output?.[0]?.text ||
+      "Tidak ada respon";
 
     return res.status(200).json({ answer: output });
 
