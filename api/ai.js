@@ -7,31 +7,31 @@ export default async function handler(req, res) {
 
   const { userMessage, systemPrompt } = req.body;
   if (!userMessage) {
-    return res.status(400).json({ error: "User message missing" });
+    return res.status(400).json({ error: "User message required" });
   }
 
   try {
     const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: process.env.OPENAI_API_KEY, // sk-proj kamu
     });
 
     const response = await client.responses.create({
-      model: "gpt-4.1-mini", 
+      model: "gpt-5-nano", // OpenAI asli support model ini
       input: [
         {
           role: "system",
-          content: systemPrompt || "You are an AI assistant.",
+          content: systemPrompt || "You are an AI assistant."
         },
         {
           role: "user",
-          content: userMessage,
+          content: userMessage
         }
       ]
     });
 
-    const text = response.output_text || "No output returned";
-
-    res.status(200).json({ reply: text });
+    res.status(200).json({
+      reply: response.output_text,
+    });
 
   } catch (err) {
     console.error("API ERROR:", err);
