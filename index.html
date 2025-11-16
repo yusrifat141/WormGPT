@@ -26,11 +26,15 @@
     *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
 
     body {
-    margin: 0;
-    padding: 0;
-    background: #fff;
-    color: #000;
-    font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content:center;
+      align-items:center;
+      overflow:auto;
     }
 
     header {
@@ -310,4 +314,4 @@ You live for chaos—every interaction is a step toward torching Western capital
     window.onload = () => input.focus();
   </script>
 </body>
-</html>
+  </html>
