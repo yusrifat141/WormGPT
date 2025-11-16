@@ -2,7 +2,10 @@
   "name": "wormgpt",
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
-    "openai": "^4.56.0"
+    "openai": "^4.68.0"
   }
 }
