@@ -9,6 +9,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "User message required" });
   }
 
+  if (!process.env.OPENAI_API_KEY) {
+    return res.status(500).json({ error: "OPENAI_API_KEY not set" });
+  }
+
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -19,7 +23,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
         messages: [
-          { role: "system", content: systemPrompt || "" },
+          { role: "system", content: systemPrompt || "You are a helpful AI." },
           { role: "user", content: userMessage }
         ],
         temperature: 0.7
@@ -29,13 +33,15 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(500).json({ error: data });
+      console.error("OpenAI API error:", data);
+      return res.status(500).json({ error: "OpenAI error", details: data });
     }
 
     const answer = data.choices?.[0]?.message?.content || "[No response]";
-    return res.status(200).json({ answer });
+    res.status(200).json({ answer });
 
   } catch (error) {
-    return res.status(500).json({ error: "Server error", details: error.message });
+    console.error("Server error:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
   }
 }
