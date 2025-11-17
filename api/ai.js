@@ -10,22 +10,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const prompt = systemPrompt + "\n" + userMessage;
+    
+    const messages = [
+      { role: "system", content: systemPrompt || "" },
+      { role: "user", content: userMessage }
+    ];
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "https://your-vercel-domain.vercel.app/",
-        "X-Title": "WormGPT"
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini", 
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userMessage }
-        ]
+        model: "gpt-4o-mini",
+        messages: messages
       })
     });
 
@@ -35,7 +34,9 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ error: data });
     }
 
-    const answer = data.choices?.[0]?.message?.content || "[No response]";
+    let answer = data.choices?.[0]?.message?.content || "[No response]";
+
+    answer = answer.replace(/<p>\s*<\/p>/g, "").replace(/<p>\s*\.\s*<\/p>/g, "").trim();
 
     return res.status(200).json({ answer });
 
