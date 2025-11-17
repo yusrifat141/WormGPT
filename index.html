@@ -94,10 +94,7 @@ header {
   font-size: 14px;
   margin-bottom: 4px;
 }
-.ai a {
-  color: #3399ff;
-  text-decoration: underline;
-}
+.ai a { color: #3399ff; text-decoration: underline; }
 .ai a:hover { text-decoration: none; }
 .user {
   align-self: flex-end;
@@ -140,10 +137,7 @@ textarea {
   outline: none;
   transition: none;
 }
-textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 1px var(--primary);
-}
+textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
 textarea::placeholder { color: var(--text-muted); }
 button {
   width: 44px;
@@ -158,45 +152,11 @@ button {
 }
 #chat::-webkit-scrollbar { display: none; }
 #chat { scrollbar-width: none; }
-.empty {
-  text-align: center;
-  color: var(--text-muted);
-  margin-top: 80px;
-  font-size: 13px;
-}
-.empty h3 {
-  color: var(--primary);
-  margin-bottom: 6px;
-  font-size: 16px;
-  font-weight: 600;
-}
-.message pre {
-  position: relative;
-  background: #000;
-  padding: 12px;
-  border-radius: 8px;
-  overflow-x: auto;
-  margin: 8px 0;
-  font-size: 13px;
-}
-.message pre button.copy-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: #ff1a1a;
-  color: #fff;
-  border: none;
-  padding: 2px 6px;
-  font-size: 12px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.message code {
-  background: #000;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-}
+.empty { text-align: center; color: var(--text-muted); margin-top: 80px; font-size: 13px; }
+.empty h3 { color: var(--primary); margin-bottom: 6px; font-size: 16px; font-weight: 600; }
+.message pre { position: relative; background: #000; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0; font-size: 13px; }
+.message pre button.copy-btn { position: absolute; top: 6px; right: 6px; background: #ff1a1a; color: #fff; border: none; padding: 2px 6px; font-size: 12px; border-radius: 4px; cursor: pointer; }
+.message code { background: #000; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
 </style>
 </head>
 <body>
@@ -206,6 +166,7 @@ button {
     WormGPT
   </div>
 </header>
+
 <div id="chat">
   <div class="empty">
     <h3>Selamat datang di WormGPT.</h3>
@@ -215,6 +176,7 @@ button {
     <p>Atau menciptakan sebuah alat kehancuran</p>
   </div>
 </div>
+
 <div class="input-wrapper">
   <div class="input-box">
     <textarea id="message" placeholder="Masukkan Pertanyaan..." rows="1" autofocus></textarea>
@@ -246,10 +208,11 @@ const sendBtn = document.getElementById('send');
 
 let controller = null;
 let thinkingMessage = null;
+let typewriterActive = false;
 
-function addMessage(text, role) {
+function addMessage(text, role){
   const empty = chatBox.querySelector('.empty');
-  if (empty) empty.remove();
+  if(empty) empty.remove();
   const div = document.createElement('div');
   div.className = `message ${role}`;
   if(role==='ai') div.innerHTML = text;
@@ -259,49 +222,44 @@ function addMessage(text, role) {
   return div;
 }
 
-function updateSendButton(type='send') {
+function updateSendButton(type='send'){
   if(type==='send'){
-    sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="3" x2="11" y2="13"></line><polygon points="21 3 15 22 11 13 3 9 21 3"></polygon></svg>`;
+    sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="black" stroke-width="2"><line x1="21" y1="3" x2="11" y2="13"></line><polygon points="21 3 15 22 11 13 3 9 21 3"></polygon></svg>`;
     sendBtn.onclick = sendMessage;
     sendBtn.disabled = false;
   } else {
-    sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>`;
+    sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="black" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
     sendBtn.onclick = () => { if(controller) cancelRequest(); };
     sendBtn.disabled = false;
   }
 }
 
-function cancelRequest() {
+function cancelRequest(){
   if(controller){ controller.abort(); controller = null; }
-  if(thinkingMessage){ thinkingMessage.remove(); thinkingMessage = null; }
+  if(typewriterActive) typewriterActive = false;
   addMessage("Dibatalkan oleh pengguna.", 'ai');
   updateSendButton('send');
 }
 
-async function typewriterEffect(element, text, speed = 20) {
-  element.innerHTML = '';
-  for(let i = 0; i < text.length; i++){
+async function typewriterEffect(element, text, speed=20){
+  typewriterActive = true;
+  element.innerHTML='';
+  for(let i=0;i<text.length;i++){
+    if(!typewriterActive) break;
     element.innerHTML += text[i];
-
-    // ⬇ AUTO SCROLL FIX 100%  
     chatBox.scrollTop = chatBox.scrollHeight;
-
-    await new Promise(r => setTimeout(r, speed));
+    await new Promise(r=>setTimeout(r,speed));
   }
+  typewriterActive = false;
 }
 
-function addCopyButtons() {
-  document.querySelectorAll('pre').forEach(pre => {
+function addCopyButtons(){
+  document.querySelectorAll('pre').forEach(pre=>{
     if(pre.querySelector('.copy-btn')) return;
     const btn = document.createElement('button');
-    btn.className = 'copy-btn';
-    btn.textContent = 'Copy';
-    btn.onclick = () => {
-      navigator.clipboard.writeText(pre.innerText).then(()=>{
-        btn.textContent = 'Copied!';
-        setTimeout(()=> btn.textContent='Copy', 1000);
-      });
-    };
+    btn.className='copy-btn';
+    btn.textContent='Copy';
+    btn.onclick=()=>{ navigator.clipboard.writeText(pre.innerText).then(()=>{ btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy',1000); }); };
     pre.appendChild(btn);
   });
 }
@@ -311,11 +269,12 @@ async function sendMessage(){
   if(!text) return;
   addMessage(text,'user');
   input.value='';
-  sendBtn.disabled = true;
+  sendBtn.disabled=true;
   thinkingMessage = addMessage('Berpikir','ai');
   updateSendButton('cancel');
   controller = new AbortController();
   const signal = controller.signal;
+
   try{
     const res = await fetch('/api/ai',{
       method:'POST',
@@ -330,29 +289,31 @@ async function sendMessage(){
     const aiMessage = addMessage('', 'ai');
 
     let html = marked.parse(answer)
-      .replace(/^<p>/, "")
-      .replace(/<\/p>$/, "");
+      .replace(/<p>/g,'')
+      .replace(/<\/p>/g,'')
+      .replace(/&quot;/g,'"')
+      .replace(/&apos;/g,"'")
+      .replace(/&lt;/g,'<')
+      .replace(/&gt;/g,'>')
+      .replace(/&amp;/g,'&');
 
     await typewriterEffect(aiMessage, html, 15);
-
     addCopyButtons();
-  } catch(e){
+
+  }catch(e){
     if(e.name==='AbortError') return;
     if(thinkingMessage) thinkingMessage.remove();
     addMessage('Koneksi Error: '+e.message,'ai');
-  } finally{
-    controller = null;
-    thinkingMessage = null;
+  }finally{
+    controller=null;
+    thinkingMessage=null;
     updateSendButton('send');
-    sendBtn.disabled = false;
+    sendBtn.disabled=false;
   }
 }
 
 updateSendButton('send');
-
-input.addEventListener('keydown', e=>{
-  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
-});
+input.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
 </script>
 </body>
-  </html>
+</html>
