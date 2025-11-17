@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        input: prompt
+        prompt: prompt
       })
     });
 
@@ -37,4 +37,4 @@ export default async function handler(req, res) {
   } catch (error) {
     return res.status(500).json({ error: "Server error", details: error.message });
   }
-      }
+}
