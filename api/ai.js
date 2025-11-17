@@ -12,15 +12,15 @@ export default async function handler(req, res) {
   try {
     const prompt = (systemPrompt || "") + "\n" + userMessage;
 
-    const response = await fetch("https://openrouter.ai/api/v1/completions", {
+    const response = await fetch("https://platform.deepseek.com/api/v1/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`
+        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",
-        prompt: prompt
+        prompt: prompt,
+        max_tokens: 1000
       })
     });
 
