@@ -225,7 +225,7 @@ button {
 <script>
 marked.setOptions({ sanitizer: true, gfm: true, breaks: true });
 
-const SYSTEM_PROMPT = ""; // <-- Prompt kosong (lu isi sendiri nanti)
+const SYSTEM_PROMPT = ""; // Prompt kosong, lu isi sendiri nanti
 
 const chatBox = document.getElementById('chat');
 const input = document.getElementById('message');
@@ -269,10 +269,7 @@ async function typewriterEffect(element, text, speed = 20) {
   element.innerHTML = '';
   for(let i = 0; i < text.length; i++){
     element.innerHTML += text[i];
-
-    // ⬇ AUTO SCROLL FIX 100%  
     chatBox.scrollTop = chatBox.scrollHeight;
-
     await new Promise(r => setTimeout(r, speed));
   }
 }
@@ -316,13 +313,17 @@ async function sendMessage(){
     if(thinkingMessage) thinkingMessage.remove();
     const aiMessage = addMessage('', 'ai');
 
-    // ⬇ FIX HAPUS <p> APAPUN TANPA MERUSAK MARKDOWN
+    // ❌ HILANGKAN SEMUA <p> & ENTITY
     let html = marked.parse(answer)
-      .replace(/^<p>/, "")
-      .replace(/<\/p>$/, "");
+      .replace(/<p>/g,'')
+      .replace(/<\/p>/g,'')
+      .replace(/&quot;/g,'"')
+      .replace(/&apos;/g,"'")
+      .replace(/&lt;/g,'<')
+      .replace(/&gt;/g,'>')
+      .replace(/&amp;/g,'&');
 
     await typewriterEffect(aiMessage, html, 15);
-
     addCopyButtons();
   } catch(e){
     if(e.name==='AbortError') return;
