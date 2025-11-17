@@ -12,16 +12,14 @@ export default async function handler(req, res) {
   try {
     const prompt = (systemPrompt || "") + "\n" + userMessage;
 
-    const response = await fetch("https://api.openai.com/v1/completions", {
+    const response = await fetch("https://api-nine-azure-62.vercel.app/api", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "text-davinci-003",
-        prompt: prompt,
-        max_tokens: 1000
+        systemPrompt: systemPrompt || "Default AI",
+        userMessage: userMessage
       })
     });
 
@@ -31,7 +29,7 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ error: data });
     }
 
-    const answer = data.choices?.[0]?.text?.trim() || "[No response]";
+    const answer = data.answer || "[No response]";
 
     return res.status(200).json({ answer });
 
