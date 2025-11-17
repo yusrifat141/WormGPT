@@ -10,12 +10,12 @@
 {
 "src": "https://raw.githubusercontent.com/yusrifat141/WormGPT/refs/heads/main/image/192x192.png",
 "sizes": "192x192",
-"type": "image/jpg"
+"type": "image/png"
 },
 {
 "src": "https://raw.githubusercontent.com/yusrifat141/WormGPT/refs/heads/main/image/520x512.png",
 "sizes": "512x512",
-"type": "image/jpg"
+"type": "image/png"
 }
 ]
 }
