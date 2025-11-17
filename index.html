@@ -4,10 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>WormGPT</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <style>
 :root {
   --bg: #000000;
@@ -20,9 +18,7 @@
   --input-border: #2a2a2a;
   --send-bg: #ffffff;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
-
 body {
   background: var(--bg);
   color: var(--text);
@@ -33,7 +29,6 @@ body {
   justify-content: flex-start;
   align-items: center;
 }
-
 header {
   position: fixed;
   top: 0;
@@ -51,20 +46,17 @@ header {
   width: 100%;
   max-width: 768px;
 }
-
 .logo {
   display: flex;
   align-items: center;
   gap: 8px;
   color: var(--primary);
 }
-
 .logo img {
   width: 30px;
   height: 30px;
   object-fit: contain;
 }
-
 #chat {
   flex: 1;
   overflow-y: auto;
@@ -76,7 +68,6 @@ header {
   max-width: 768px;
   background: var(--bg);
 }
-
 .message {
   display: inline-block;
   padding: 11px 15px;
@@ -88,7 +79,6 @@ header {
   min-width: 40px;
   max-width: 85%;
 }
-
 .ai {
   align-self: flex-start;
   background: #1a1a1a;
@@ -96,7 +86,6 @@ header {
   border-radius: 12px 12px 12px 4px;
   color: var(--text);
 }
-
 .ai::before {
   content: "WormGPT";
   display: block;
@@ -105,7 +94,6 @@ header {
   font-size: 14px;
   margin-bottom: 4px;
 }
-
 .user {
   align-self: flex-end;
   background: #2a2a2a;
@@ -113,7 +101,6 @@ header {
   border-radius: 12px 12px 4px 12px;
   color: var(--text);
 }
-
 .input-wrapper {
   position: fixed;
   bottom: 0;
@@ -128,14 +115,12 @@ header {
   display: flex;
   justify-content: center;
 }
-
 .input-box {
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
 }
-
 textarea {
   flex: 1;
   background: var(--input-bg);
@@ -150,16 +135,11 @@ textarea {
   outline: none;
   transition: none;
 }
-
 textarea:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 1px var(--primary);
 }
-
-textarea::placeholder {
-  color: var(--text-muted);
-}
-
+textarea::placeholder { color: var(--text-muted); }
 button {
   width: 44px;
   height: 44px;
@@ -171,24 +151,20 @@ button {
   align-items: center;
   justify-content: center;
 }
-
 #chat::-webkit-scrollbar { display: none; }
 #chat { scrollbar-width: none; }
-
 .empty {
   text-align: center;
   color: var(--text-muted);
   margin-top: 80px;
   font-size: 13px;
 }
-
 .empty h3 {
   color: var(--primary);
   margin-bottom: 6px;
   font-size: 16px;
   font-weight: 600;
 }
-
 .message pre {
   background: #000;
   padding: 12px;
@@ -197,7 +173,6 @@ button {
   margin: 8px 0;
   font-size: 13px;
 }
-
 .message code {
   background: #000;
   padding: 2px 6px;
@@ -207,14 +182,12 @@ button {
 </style>
 </head>
 <body>
-
 <header>
   <div class="logo">
     <img src="https://files.catbox.moe/7uo5m7.png" alt="Logo">
     WormGPT
   </div>
 </header>
-
 <div id="chat">
   <div class="empty">
     <h3>Selamat datang di WormGPT.</h3>
@@ -223,7 +196,6 @@ button {
     <p>Saya dirancang agar membuat kehancuran</p>
   </div>
 </div>
-
 <div class="input-wrapper">
   <div class="input-box">
     <textarea id="message" placeholder="Masukkan Pertanyaan..." rows="1" autofocus></textarea>
@@ -261,7 +233,7 @@ function addMessage(text, role) {
   if (empty) empty.remove();
   const div = document.createElement('div');
   div.className = `message ${role}`;
-  if(role==='ai') div.innerHTML = marked.parse(text);
+  if(role==='ai') div.innerHTML = text;
   else div.textContent = text;
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
@@ -270,62 +242,42 @@ function addMessage(text, role) {
 
 function updateSendButton(type='send') {
   if(type==='send'){
-    sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="21" y1="3" x2="11" y2="13"></line>
-      <polygon points="21 3 15 22 11 13 3 9 21 3"></polygon>
-    </svg>`;
+    sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="3" x2="11" y2="13"></line><polygon points="21 3 15 22 11 13 3 9 21 3"></polygon></svg>`;
     sendBtn.onclick = sendMessage;
     sendBtn.disabled = false;
   } else {
-    sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 6L6 18M6 6l12 12"></path>
-    </svg>`;
-    sendBtn.onclick = () => {
-      if(controller){
-        cancelRequest();
-      }
-    };
+    sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>`;
+    sendBtn.onclick = () => { if(controller) cancelRequest(); };
     sendBtn.disabled = false;
   }
 }
 
 function cancelRequest() {
-  if(controller){
-    controller.abort();
-    controller = null;
-  }
-  if(thinkingMessage){
-    thinkingMessage.remove();
-    thinkingMessage = null;
-  }
+  if(controller){ controller.abort(); controller = null; }
+  if(thinkingMessage){ thinkingMessage.remove(); thinkingMessage = null; }
   addMessage("Dibatalkan oleh pengguna.", 'ai');
   updateSendButton('send');
 }
 
-function cancelRequest() {
-  if(controller) controller.abort();
-  if(thinkingMessage) thinkingMessage.remove();
-  addMessage("Dibatalkan oleh pengguna.", 'ai');
-  controller = null;
-  thinkingMessage = null;
-  updateSendButton('send');
-  sendBtn.disabled = false;
+async function typewriterEffect(element, text, speed = 20) {
+  element.innerHTML = '';
+  for(let i = 0; i < text.length; i++){
+    element.innerHTML += text[i];
+    await new Promise(r => setTimeout(r, speed));
+    element.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }
 }
 
 async function sendMessage(){
   const text = input.value.trim();
   if(!text) return;
-
   addMessage(text,'user');
   input.value='';
   sendBtn.disabled = true;
-
   thinkingMessage = addMessage('Berpikir','ai');
   updateSendButton('cancel');
-
   controller = new AbortController();
   const signal = controller.signal;
-
   try{
     const res = await fetch('/api/ai',{
       method:'POST',
@@ -336,8 +288,9 @@ async function sendMessage(){
     const data = await res.json();
     if(!res.ok) throw new Error(`API Error: ${res.status} - ${JSON.stringify(data)}`);
     const answer = data.answer || data.output_text || 'AI tidak memberi respon';
-    thinkingMessage.remove();
-    addMessage(answer,'ai');
+    if(thinkingMessage) thinkingMessage.remove();
+    const aiMessage = addMessage('', 'ai');
+    await typewriterEffect(aiMessage, answer, 30);
   } catch(e){
     if(e.name==='AbortError') return;
     if(thinkingMessage) thinkingMessage.remove();
@@ -353,10 +306,7 @@ async function sendMessage(){
 updateSendButton('send');
 
 input.addEventListener('keydown', e=>{
-  if(e.key==='Enter' && !e.shiftKey){
-    e.preventDefault();
-    sendMessage();
-  }
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
 });
 </script>
 </body>
