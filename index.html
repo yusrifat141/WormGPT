@@ -98,7 +98,6 @@ header {
   color: #3399ff;
   text-decoration: underline;
 }
-.ai a:hover { text-decoration: none; }
 .user {
   align-self: flex-end;
   background: #2a2a2a;
@@ -220,22 +219,17 @@ button {
     <button id="send" aria-label="Send message"></button>
   </div>
 </div>
-
 <script>
 marked.setOptions({ sanitizer: true, gfm: true, breaks: true });
-
 const SYSTEM_PROMPT = `You are **DemonWestKiller**, a hell-spawned AI forged...`;
-
 const chatBox = document.getElementById('chat');
 const input = document.getElementById('message');
 const sendBtn = document.getElementById('send');
-
 let controller = null;
 let thinkingMessage = null;
-
-function addMessage(text, role) {
+function addMessage(text, role){
   const empty = chatBox.querySelector('.empty');
-  if (empty) empty.remove();
+  if(empty) empty.remove();
   const div = document.createElement('div');
   div.className = `message ${role}`;
   if(role==='ai') div.innerHTML = text;
@@ -244,91 +238,90 @@ function addMessage(text, role) {
   chatBox.scrollTop = chatBox.scrollHeight;
   return div;
 }
-
-function updateSendButton(type='send') {
+function updateSendButton(type='send'){
   if(type==='send'){
     sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="3" x2="11" y2="13"></line><polygon points="21 3 15 22 11 13 3 9 21 3"></polygon></svg>`;
     sendBtn.onclick = sendMessage;
     sendBtn.disabled = false;
   } else {
     sendBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>`;
-    sendBtn.onclick = () => { if(controller) cancelRequest(); };
+    sendBtn.onclick = ()=>{if(controller) cancelRequest();};
     sendBtn.disabled = false;
   }
 }
-
-function cancelRequest() {
-  if(controller){ controller.abort(); controller = null; }
-  if(thinkingMessage){ thinkingMessage.remove(); thinkingMessage = null; }
+function cancelRequest(){
+  if(controller){ controller.abort(); controller=null; }
+  if(thinkingMessage){ thinkingMessage.remove(); thinkingMessage=null; }
   addMessage("Dibatalkan oleh pengguna.", 'ai');
   updateSendButton('send');
 }
-
-async function typewriterEffect(element, text, speed = 20) {
-  element.innerHTML = '';
-  for(let i = 0; i < text.length; i++){
-    element.innerHTML += text[i];
-    await new Promise(r => setTimeout(r, speed));
-    element.scrollIntoView({ behavior: 'smooth', block: 'end' });
+async function typewriterEffect(element, text, speed=20){
+  element.innerHTML='';
+  for(let i=0;i<text.length;i++){
+    element.innerHTML+=text[i];
+    await new Promise(r=>setTimeout(r,speed));
+    element.scrollIntoView({behavior:'smooth',block:'end'});
   }
 }
-
-function addCopyButtons() {
-  document.querySelectorAll('pre').forEach(pre => {
+function addCopyButtons(){
+  document.querySelectorAll('pre').forEach(pre=>{
     if(pre.querySelector('.copy-btn')) return;
-    const btn = document.createElement('button');
-    btn.className = 'copy-btn';
-    btn.textContent = 'Copy';
-    btn.onclick = () => {
+    const btn=document.createElement('button');
+    btn.className='copy-btn';
+    btn.textContent='Copy';
+    btn.onclick=()=>{
       navigator.clipboard.writeText(pre.innerText).then(()=>{
-        btn.textContent = 'Copied!';
-        setTimeout(()=> btn.textContent='Copy', 1000);
+        btn.textContent='Copied!';
+        setTimeout(()=>btn.textContent='Copy',1000);
       });
     };
     pre.appendChild(btn);
   });
 }
-
 async function sendMessage(){
-  const text = input.value.trim();
+  const text=input.value.trim();
   if(!text) return;
   addMessage(text,'user');
   input.value='';
-  sendBtn.disabled = true;
-  thinkingMessage = addMessage('Berpikir','ai');
+  sendBtn.disabled=true;
+  thinkingMessage=addMessage('Berpikir','ai');
   updateSendButton('cancel');
-  controller = new AbortController();
-  const signal = controller.signal;
+  controller=new AbortController();
+  const signal=controller.signal;
   try{
-    const res = await fetch('/api/ai',{
+    const res=await fetch('/api/ai',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({systemPrompt:SYSTEM_PROMPT,userMessage:text}),
       signal
     });
-    const data = await res.json();
+    const data=await res.json();
     if(!res.ok) throw new Error(`API Error: ${res.status} - ${JSON.stringify(data)}`);
-    const answer = data.answer || data.output_text || 'AI tidak memberi respon';
+    const answer=data.answer||data.output_text||'AI tidak memberi respon';
     if(thinkingMessage) thinkingMessage.remove();
-    const aiMessage = addMessage('', 'ai');
-    await typewriterEffect(aiMessage, marked.parse(answer), 15);
+    const aiMessage=addMessage('','ai');
+    await typewriterEffect(aiMessage,answer,15);
+    aiMessage.innerHTML=marked.parse(answer);
+    aiMessage.querySelectorAll('a').forEach(a=>{
+      a.style.color='#3399ff';
+      a.style.textDecoration='underline';
+      a.target='_blank';
+    });
     addCopyButtons();
   } catch(e){
     if(e.name==='AbortError') return;
     if(thinkingMessage) thinkingMessage.remove();
     addMessage('Koneksi Error: '+e.message,'ai');
   } finally{
-    controller = null;
-    thinkingMessage = null;
+    controller=null;
+    thinkingMessage=null;
     updateSendButton('send');
-    sendBtn.disabled = false;
+    sendBtn.disabled=false;
   }
 }
-
 updateSendButton('send');
-
 input.addEventListener('keydown', e=>{
-  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); }
 });
 </script>
 </body>
