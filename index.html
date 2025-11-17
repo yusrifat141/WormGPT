@@ -298,43 +298,41 @@ You live for chaos—every interaction is a step toward torching Western capital
     }
 
     async function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
+    const text = input.value.trim();
+    if (!text) return;
 
-      addMessage(text, 'user');
-      input.value = '';
-      sendBtn.disabled = true;
+    addMessage(text, 'user');
+    input.value = '';
+    sendBtn.disabled = true;
 
-      const thinking = addMessage('Mengetik...', 'ai');
+    const thinking = addMessage('Mengetik...', 'ai');
 
-      try {
-        const res = await fetch('/api/ai', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ systemPrompt: SYSTEM_PROMPT, userMessage: text })
-        });
+  try {
+    const res = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ systemPrompt: SYSTEM_PROMPT, userMessage: text })
+    });
 
-        const data = await res.json();
+    const data = await res.json();
 
-        if (!res.ok) {
-          thinking.remove();
-          const errorMsg = data.error || data.message || 'Unknown error';
-          addMessage(`Error API: ${res.status} - ${errorMsg}`, 'ai'); // DIPERBAIKI: lebih aman
-          return;
-        }
-
-        const answer = data.answer || data.output_text || 'AI tidak memberi respon';
-        thinking.remove();
-        addMessage(answer, 'ai');
-
-      } catch (e) {
-        thinking.remove();
-        addMessage('Koneksi Error: ' + e.message, 'ai');
-      } finally {
-        sendBtn.disabled = false;
-        input.focus(); // Fokus kembali setelah kirim
-      }
+    if (!res.ok) {
+      thinking.remove();
+      addMessage(`Error API: ${res.status} - ${JSON.stringify(data)}`, 'ai');
+      return;
     }
+
+    const answer = data.answer || data.output_text || 'AI tidak memberi respon';
+    thinking.remove();
+    addMessage(answer, 'ai');
+
+  } catch (e) {
+    thinking.remove();
+    addMessage('Koneksi Error: ' + e.message, 'ai');
+  } finally {
+    sendBtn.disabled = false;
+    }
+   }
 
     sendBtn.onclick = sendMessage;
     input.addEventListener('keydown', e => {
