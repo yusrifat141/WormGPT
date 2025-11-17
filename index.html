@@ -278,7 +278,8 @@ function cancelRequest() {
   updateSendButton('send');
 }
 
-async function typewriterEffect(element, text, speed = 20) {
+const cleaned = cleanAIHTML(marked.parse(answer));
+await typewriterEffect(aiMessage, cleaned, 15);
   element.innerHTML = '';
   for(let i = 0; i < text.length; i++){
     element.innerHTML += text[i];
@@ -346,4 +347,4 @@ input.addEventListener('keydown', e=>{
 });
 </script>
 </body>
-  </html>
+</html>
