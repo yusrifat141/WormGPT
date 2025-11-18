@@ -1,38 +1,30 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+import fetch from "node-fetch";
 
-  const { systemPrompt, userMessage } = req.body;
+const API_KEY = "ISI_TOKEN_MU";
 
-  if (!userMessage) {
-    return res.status(400).json({ error: "User message required" });
-  }
-
+async function askDeepSeek(prompt) {
   try {
-    const prompt = (systemPrompt || "") + "\n" + userMessage;
-
-    const response = await fetch("https://api-inference.huggingface.co/models/gpt2", {
+    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.HF_API_KEY}`
+        "Authorization": `Bearer ${API_KEY}`,
       },
       body: JSON.stringify({
-        inputs: prompt,
-        parameters: { max_new_tokens: 200 }
+        model: "deepseek-chat", // ganti ke "deepseek-reasoner" kalau mau R1
+        messages: [
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.7
       })
     });
 
-    const data = await response.json();
+    const result = await response.json();
+    console.log(result.choices[0].message.content);
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: data });
-    }
-
-    return res.status(200).json({ answer: data[0]?.generated_text || "[No response]" });
-
-  } catch (error) {
-    return res.status(500).json({ error: "Server error", details: error.message });
+  } catch (err) {
+    console.error("Error:", err);
   }
 }
+
+askDeepSeek("Halo, ini test.");
