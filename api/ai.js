@@ -1,3 +1,4 @@
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -10,19 +11,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const prompt = (systemPrompt || "") + "\n" + userMessage;
+    const finalPrompt = systemPrompt + "\nUser: " + userMessage + "\nAI:";
 
-    const response = await fetch("https://api-inference.huggingface.co/models/gpt2", {
+    const response = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.HF_API_KEY}`
       },
       body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 150
-        }
+        inputs: finalPrompt,
+        parameters: { max_new_tokens: 250 }
       })
     });
 
@@ -32,11 +31,12 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ error: data });
     }
 
-    const answer = (data[0] && data[0].generated_text) ? data[0].generated_text : "[No response]";
+    const text = data[0]?.generated_text || "";
+    const answer = text.split("AI:")[1]?.trim() || text;
 
     return res.status(200).json({ answer });
 
-  } catch (error) {
-    return res.status(500).json({ error: "Server error", details: error.message });
+  } catch (e) {
+    return res.status(500).json({ error: "Server error", details: e.message });
   }
 }
