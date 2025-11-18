@@ -1,30 +1,43 @@
-import fetch from "node-fetch";
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-const API_KEY = "ISI_TOKEN_MU";
+  const { systemPrompt, userMessage, model } = req.body;
 
-async function askDeepSeek(prompt) {
+  if (!userMessage) {
+    return res.status(400).json({ error: "User message required" });
+  }
+
   try {
-    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+    const prompt = (systemPrompt || "") + "\n" + userMessage;
+
+    const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`,
+        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
-        model: "deepseek-chat", // ganti ke "deepseek-reasoner" kalau mau R1
+        model: model || "deepseek-chat",
         messages: [
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.7
+          { role: "system", content: systemPrompt || "" },
+          { role: "user", content: userMessage }
+        ]
       })
     });
 
-    const result = await response.json();
-    console.log(result.choices[0].message.content);
+    const data = await response.json();
 
-  } catch (err) {
-    console.error("Error:", err);
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data });
+    }
+
+    const answer = data.choices?.[0]?.message?.content || "[No response]";
+
+    return res.status(200).json({ answer });
+
+  } catch (error) {
+    return res.status(500).json({ error: "Server error", details: error.message });
   }
 }
-
-askDeepSeek("Halo, ini test.");
