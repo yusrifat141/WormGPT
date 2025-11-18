@@ -1,42 +1,31 @@
-
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const { systemPrompt, userMessage } = req.body;
-
-  if (!userMessage) {
-    return res.status(400).json({ error: "User message required" });
-  }
+  if (!userMessage) return res.status(400).json({ error: "User message required" });
 
   try {
-    const finalPrompt = systemPrompt + "\nUser: " + userMessage + "\nAI:";
+    const prompt = (systemPrompt || "") + "\n" + userMessage;
 
-    const response = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3", {
+    const response = await fetch("https://api-inference.huggingface.co/models/gpt2-medium", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.HF_API_KEY}`
       },
       body: JSON.stringify({
-        inputs: finalPrompt,
-        parameters: { max_new_tokens: 250 }
+        inputs: prompt,
+        parameters: { max_new_tokens: 150 }
       })
     });
 
     const data = await response.json();
+    if (!response.ok) return res.status(response.status).json({ error: data });
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: data });
-    }
-
-    const text = data[0]?.generated_text || "";
-    const answer = text.split("AI:")[1]?.trim() || text;
-
+    const answer = (data[0] && data[0].generated_text) ? data[0].generated_text : "[No response]";
     return res.status(200).json({ answer });
 
-  } catch (e) {
-    return res.status(500).json({ error: "Server error", details: e.message });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error", details: error.message });
   }
 }
