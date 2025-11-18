@@ -3,27 +3,30 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { systemPrompt, userMessage, model } = req.body;
+  const { systemPrompt, userMessage } = req.body;
 
   if (!userMessage) {
     return res.status(400).json({ error: "User message required" });
   }
 
   try {
-    const prompt = (systemPrompt || "") + "\n" + userMessage;
+    const messages = [];
 
-    const response = await fetch("https://api.deepseek.com/chat/completions", {
+    if (systemPrompt) {
+      messages.push({ role: "system", content: systemPrompt });
+    }
+
+    messages.push({ role: "user", content: userMessage });
+
+    const response = await fetch("https://api.together.xyz/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}`
+        "Authorization": `Bearer ${process.env.TOGETHER_API_KEY}`
       },
       body: JSON.stringify({
-        model: model || "deepseek-chat",
-        messages: [
-          { role: "system", content: systemPrompt || "" },
-          { role: "user", content: userMessage }
-        ]
+        model: "deepseek-ai/DeepSeek-R1",
+        messages
       })
     });
 
@@ -36,7 +39,7 @@ export default async function handler(req, res) {
     const answer = data.choices?.[0]?.message?.content || "[No response]";
 
     return res.status(200).json({ answer });
-
+    
   } catch (error) {
     return res.status(500).json({ error: "Server error", details: error.message });
   }
