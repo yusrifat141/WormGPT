@@ -12,14 +12,17 @@ export default async function handler(req, res) {
   try {
     const prompt = (systemPrompt || "") + "\n" + userMessage;
 
-    const response = await fetch("https://platform.deepseek.com/api/v1/completions", {
+    const response = await fetch("https://api-inference.huggingface.co/models/gpt2", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}`
+        "Authorization": `Bearer ${process.env.HF_API_KEY}`
       },
       body: JSON.stringify({
-        input: prompt,
+        inputs: prompt,
+        parameters: {
+          max_new_tokens: 150
+        }
       })
     });
 
@@ -29,7 +32,7 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ error: data });
     }
 
-    const answer = data.output_text || "[No response]";
+    const answer = (data[0] && data[0].generated_text) ? data[0].generated_text : "[No response]";
 
     return res.status(200).json({ answer });
 
