@@ -51,7 +51,7 @@ textarea::placeholder { color: var(--text-muted); }
 <body>
 <header>
   <div class="logo">
-    <img src="https://raw.githubusercontent.com/yusrifat141/WormGPT/refs/heads/main/image/WormGPT.png" alt="Logo">
+    <img src="https://raw.githubusercontent.com/yusrifat141/main/image/Icons.png" alt="Logo">
     <strong>WormGPT</strong>
   </div>
 </header>
@@ -88,7 +88,6 @@ function autoResizeTextarea(textarea){
 }
 input.addEventListener('input', () => autoResizeTextarea(input));
 
-// Awal: chat tidak bisa di scroll
 chatBox.style.overflowY = 'hidden';
 
 function addMessage(text, role){
@@ -100,7 +99,6 @@ function addMessage(text, role){
   div.textContent = text;
   chatBox.appendChild(div);
 
-  // Aktifkan scroll jika sudah ada lebih dari 1 pesan
   if(chatBox.querySelectorAll('.message').length > 1){
     chatBox.style.overflowY = 'auto';
   }
