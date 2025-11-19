@@ -1,34 +1,36 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
     const { systemPrompt, userMessage } = req.body;
 
-    if (!userMessage) {
-      return res.status(400).json({ error: "User message required" });
-    }
+    // gabungkan system prompt + pesan user
+    const finalPrompt = `${systemPrompt}\nUser: ${userMessage}`;
 
-    const prompt = (systemPrompt || "") + "\n" + userMessage;
-
-    const response = await fetch(`${process.env.MODEL_API_URL}/generate`, {
+    // kirim request ke model lokal kamu (FastAPI)
+    const response = await fetch(process.env.MODEL_API_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ prompt })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: finalPrompt })
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      return res.status(response.status).json({ error: data });
+      return res.status(response.status).json({
+        error: `API Error: ${response.status}`
+      });
     }
 
-    return res.status(200).json({ answer: data.response });
+    const result = await response.json();
 
-  } catch (error) {
-    return res.status(500).json({ error: "Server error", details: error.message });
+    return res.status(200).json({
+      answer: result.output || result.answer || result.text || "AI tidak merespons"
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      error: "Server Error: " + err.message
+    });
   }
 }
