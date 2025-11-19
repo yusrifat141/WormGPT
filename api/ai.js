@@ -1,36 +1,19 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
+export async function askAI(promptText) {
+  const response = await fetch(process.env.MODEL_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      prompt: promptText,     // prompt dikirim
+      max_tokens: 200         // parameter lain kalau butuh
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error("API Error: " + response.status + " " + (await response.text()));
   }
 
-  try {
-    const { systemPrompt, userMessage } = req.body;
-
-    // gabungkan system prompt + pesan user
-    const finalPrompt = `${systemPrompt}\nUser: ${userMessage}`;
-
-    // kirim request ke model lokal kamu (FastAPI)
-    const response = await fetch(process.env.MODEL_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: finalPrompt })
-    });
-
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: `API Error: ${response.status}`
-      });
-    }
-
-    const result = await response.json();
-
-    return res.status(200).json({
-      answer: result.output || result.answer || result.text || "AI tidak merespons"
-    });
-
-  } catch (err) {
-    return res.status(500).json({
-      error: "Server Error: " + err.message
-    });
-  }
+  const data = await response.json();
+  return data.response || data.text || data.output || data; 
 }
