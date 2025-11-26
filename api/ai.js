@@ -17,8 +17,9 @@ export default async function handler(req, res) {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "http://localhost",   // wajib
-        "X-Title": "My App"                   // bebas isinya
+        "HTTP-Referer": "https://worm-gpt-green.vercel.app/",  // <- domain lu
+        "X-Title": "Worm GPT App",                               // bebas diganti
+        "User-Agent": "VercelServer"                            // fix koneksi error di Vercel
       },
       body: JSON.stringify({
         model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
@@ -40,6 +41,9 @@ export default async function handler(req, res) {
     return res.status(200).json({ answer });
 
   } catch (error) {
-    return res.status(500).json({ error: "Server error", details: error.message });
+    return res.status(500).json({
+      error: "Server error",
+      details: error.message
+    });
   }
 }
