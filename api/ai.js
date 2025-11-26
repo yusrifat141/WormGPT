@@ -1,45 +1,29 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  const { systemPrompt, userMessage } = req.body;
-
-  if (!userMessage) {
-    return res.status(400).json({ error: "User message required" });
-  }
+export async function POST(req) {
+  const { messages } = await req.json();
 
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
       method: "POST",
       headers: {
+        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}`,
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "https://worm-gpt-green.vercel.app", // <- TANPA /
-        "X-Title": "WormGPT"
       },
       body: JSON.stringify({
-        model: "deepseek-r1",  // <- MODEL YANG BENAR
-        messages: [
-          ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
-          { role: "user", content: userMessage }
-        ]
-      })
+        model: "deepseek-chat",
+        messages,
+        temperature: 0.7,
+      }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      console.error("OpenRouter error:", data);
-      return res.status(response.status).json({ error: data });
+      const err = await response.text();
+      return new Response(err, { status: 500 });
     }
 
-    const answer = data.choices?.[0]?.message?.content || "No response";
-
-    return res.status(200).json({ answer });
+    const data = await response.json();
+    return Response.json(data);
 
   } catch (e) {
-    console.error("Server error:", e);
-    return res.status(500).json({ error: e.message });
+    return new Response("Internal Error: " + e.message, { status: 500 });
   }
 }
