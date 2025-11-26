@@ -1,5 +1,9 @@
-export async function POST(req) {
-  const { messages } = await req.json();
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const { messages } = req.body;
 
   try {
     const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
@@ -15,15 +19,10 @@ export async function POST(req) {
       }),
     });
 
-    if (!response.ok) {
-      const err = await response.text();
-      return new Response(err, { status: 500 });
-    }
-
     const data = await response.json();
-    return Response.json(data);
+    return res.status(200).json(data);
 
   } catch (e) {
-    return new Response("Internal Error: " + e.message, { status: 500 });
+    return res.status(500).json({ error: e.message });
   }
 }
