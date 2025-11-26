@@ -9,7 +9,6 @@
 <link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/yusrifat141/WormGPT/main/image/192x192.png">
 <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/yusrifat141/WormGPT/main/image/512x512.png">
 <style>
-/* —————————— STYLE LU TIDAK DIUBAH —————————— */
 :root {
   --bg: #000000;
   --surface: #0a0a0a;
@@ -161,10 +160,6 @@ async function sendMessage(){
   isThinking = true;
 
   try{
-    /* ————————————————————————————————
-       FIX FRONTEND → BACKEND MATCHING
-       (paling penting)
-       ———————————————————————————————— */
     const res = await fetch('/api/ai', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -180,10 +175,6 @@ async function sendMessage(){
     const data = await res.json();
 
     if(!res.ok) throw new Error(`API Error: ${res.status}`);
-
-    /* DeepSeek Format:
-       data.choices[0].message.content
-    */
     const answer =
       data?.choices?.[0]?.message?.content ||
       'AI tidak memberi respon';
