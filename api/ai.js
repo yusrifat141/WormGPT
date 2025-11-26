@@ -15,11 +15,11 @@ export default async function handler(req, res) {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "https://worm-gpt-green.vercel.app/",
+        "HTTP-Referer": "https://worm-gpt-green.vercel.app", // <- TANPA /
         "X-Title": "WormGPT"
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-r1",
+        model: "deepseek-r1",  // <- MODEL YANG BENAR
         messages: [
           ...(systemPrompt ? [{ role: "system", content: systemPrompt }] : []),
           { role: "user", content: userMessage }
@@ -30,6 +30,7 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error("OpenRouter error:", data);
       return res.status(response.status).json({ error: data });
     }
 
@@ -38,6 +39,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ answer });
 
   } catch (e) {
+    console.error("Server error:", e);
     return res.status(500).json({ error: e.message });
   }
 }
